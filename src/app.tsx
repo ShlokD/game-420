@@ -7,7 +7,7 @@ enum Gamestate {
   PLAY,
 }
 export function App() {
-  const [appState, setAppState] = useState(Gamestate.PLAY);
+  const [appState, setAppState] = useState(Gamestate.INIT);
   const [decks, setDecks] = useState(1);
   const handleStart = () => {
     setAppState(Gamestate.PLAY);
