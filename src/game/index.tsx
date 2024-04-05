@@ -101,7 +101,7 @@ const Game = ({ decks, handleEnd }: GameProps) => {
       nextTurn();
     } else {
       const shouldReveal =
-        hand.cards.length > 0 && hand.lastTurn !== turn && Math.random() >= 0.5;
+        hand.cards.length > 0 && hand.lastTurn !== turn && Math.random() >= 0.75;
       if (shouldReveal) {
         reveal();
       } else {
