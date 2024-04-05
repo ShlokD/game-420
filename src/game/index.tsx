@@ -274,7 +274,7 @@ const Game = ({ decks, handleEnd }: GameProps) => {
                         card.suit === "S" || card.suit === "C"
                           ? "text-black"
                           : "text-red-400"
-                      } w-8 h-8 bg-blue-200 text-center font-bold text-lg lg:text-2xl`}>
+                      } w-8 h-8 lg:w-16 lg:h-16 bg-blue-200 text-center font-bold text-lg lg:text-2xl`}>
                       {revealHand ? `${card.card}${card.suit}` : ""}
                     </div>
                   );
