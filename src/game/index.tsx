@@ -21,6 +21,26 @@ export type GameProps = {
 
 const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
+const getValue = (card: string) => {
+  switch (card) {
+    case "A": {
+      return 1;
+    }
+    case "K": {
+      return 13;
+    }
+    case "Q": {
+      return 12;
+    }
+    case "J": {
+      return 11;
+    }
+    default: {
+      return 10;
+    }
+  }
+};
+
 const Game = ({ decks, handleEnd }: GameProps) => {
   const [players, setPlayers] = useState<Player[]>(createPlayers(decks));
   const [turn, setTurn] = useState(findStart(players));
@@ -41,7 +61,8 @@ const Game = ({ decks, handleEnd }: GameProps) => {
     });
     setStack([]);
     setTurn(hand.lastTurn);
-    setHand((prev) => ({ ...prev, type: null, cards: [] }));
+    setHand((prev) => ({ ...prev, type: null, cards: [], lastTurn: -1 }));
+    setSelectedCards([]);
   };
 
   const passCurrentTurn = () => {
@@ -77,10 +98,6 @@ const Game = ({ decks, handleEnd }: GameProps) => {
   };
 
   const playTurn = () => {
-    if (players[turn].state === "PASS") {
-      nextTurn();
-      return;
-    }
     if (turn === 0) {
       const toPlayHand = {
         cards: selectedCards,
@@ -101,10 +118,16 @@ const Game = ({ decks, handleEnd }: GameProps) => {
       nextTurn();
     } else {
       const shouldReveal =
-        hand.cards.length > 0 && hand.lastTurn !== turn && Math.random() >= 0.75;
+        hand.cards.length > 0 &&
+        hand.lastTurn !== turn &&
+        Math.random() >= 0.75;
       if (shouldReveal) {
         reveal();
       } else {
+        if (players[turn].state === "PASS") {
+          nextTurn();
+          return;
+        }
         playCPU();
         nextTurn();
       }
@@ -193,6 +216,12 @@ const Game = ({ decks, handleEnd }: GameProps) => {
     }
   }, [turn]);
 
+  const displayCards = player.cards.sort((a, b) => {
+    const valueA = isNaN(a.card) ? getValue(a.card) : Number(a.card);
+    const valueB = isNaN(b.card) ? getValue(b.card) : Number(b.card);
+    return valueA - valueB;
+  });
+
   return (
     <div className="flex flex-col w-full flex-grow">
       <div className="flex gap-2 w-full p-4 my-2 justify-evenly">
@@ -224,6 +253,13 @@ const Game = ({ decks, handleEnd }: GameProps) => {
         <p className="text-center font-bold p-2 text-lg lg:text-4xl">
           Current Turn Player {turn + 1}
         </p>
+        <p
+          className={`${
+            hand.lastTurn === -1 ? "opacity-0" : "opacity-100"
+          } text-center font-bold p-2 text-lg lg:text-4xl`}>
+          Last Play {hand.lastTurn + 1}
+        </p>
+
         <div className="flex gap-2 items-center justify-center w-full lg:text-xl">
           <button
             className={`${
@@ -295,9 +331,11 @@ const Game = ({ decks, handleEnd }: GameProps) => {
           )}
           {winner !== -1 && (
             <div className="flex flex-col items-center gap-2 my-4">
-              <p className="text-xl font-bold text-white">Winner {winner}</p>
+              <p className="text-xl font-bold text-white">
+                Winner {winner + 1}
+              </p>
               <button
-                className="bg-blue-200 self-center rounded-lg p-4 text-2xl font-bold"
+                className="bg-blue-200 hover:bg-blue-500 self-center rounded-lg p-4 text-2xl font-bold"
                 onClick={endGame}>
                 Play Again
               </button>
@@ -306,7 +344,7 @@ const Game = ({ decks, handleEnd }: GameProps) => {
         </div>
       </div>
       <div className="flex flex-wrap gap-2 items-center justify-center">
-        {player.cards.map((card, i) => {
+        {displayCards.map((card, i) => {
           const isSelected = selectedCards.includes(card);
           return (
             <button

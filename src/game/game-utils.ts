@@ -95,7 +95,11 @@ export const chooseFirstHand = (deck: Card[], lie = 0.5) => {
   }
   const groups = groupCardsByType(deck);
   const keys = Object.keys(groups);
-  const randomKey = keys[Math.floor(Math.random() * keys.length)];
+  const sorted = keys.sort((a, b) => groups[b].length - groups[a].length);
+  const randomKey =
+    Math.random() > 0.67
+      ? keys[Math.floor(Math.random() * keys.length)]
+      : sorted[0];
   return { type: randomKey, cards: groups[randomKey] };
 };
 
